@@ -14,7 +14,7 @@ import me.ht9.rose.feature.module.modules.client.irc.IRC;
 import me.ht9.rose.feature.module.modules.client.mainmenu.MainMenu;
 import me.ht9.rose.feature.module.modules.client.togglemsg.ToggleMsg;
 import me.ht9.rose.feature.module.modules.combat.aura.Aura;
-import me.ht9.rose.feature.module.modules.exploit.boattravel.BoatTravel;
+import me.ht9.rose.feature.module.modules.exploit.boatfly.BoatFly;
 import me.ht9.rose.feature.module.modules.exploit.fastportal.FastPortal;
 import me.ht9.rose.feature.module.modules.exploit.infdurability.InfDurability;
 import me.ht9.rose.feature.module.modules.exploit.instamine.Instamine;
@@ -24,6 +24,7 @@ import me.ht9.rose.feature.module.modules.exploit.nuker.Nuker;
 import me.ht9.rose.feature.module.modules.exploit.packetlogger.PacketLogger;
 import me.ht9.rose.feature.module.modules.exploit.packetmine.PacketMine;
 import me.ht9.rose.feature.module.modules.exploit.sneak.Sneak;
+import me.ht9.rose.feature.module.modules.exploit.infinitesign.InfiniteSign;
 import me.ht9.rose.feature.module.modules.misc.autocaptcha.AutoCaptcha;
 import me.ht9.rose.feature.module.modules.misc.autoeat.AutoEat;
 import me.ht9.rose.feature.module.modules.misc.autoreconnect.AutoReconnect;
@@ -90,7 +91,7 @@ public final class Registry
 
         modules.add(Aura.instance());
 
-        modules.add(BoatTravel.instance());
+        modules.add(BoatFly.instance());
         modules.add(FastPortal.instance());
         modules.add(InfDurability.instance());
         modules.add(Instamine.instance());
@@ -100,7 +101,8 @@ public final class Registry
         modules.add(PacketLogger.instance());
         modules.add(PacketMine.instance());
         modules.add(Sneak.instance());
-
+        modules.add(InfiniteSign.instance());
+        
         modules.add(AutoCaptcha.instance());
         modules.add(AutoEat.instance());
         modules.add(AutoReconnect.instance());
