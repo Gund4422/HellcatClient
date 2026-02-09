@@ -12,6 +12,7 @@ public enum Category
 {
     Client("me.ht9.rose.feature.module.modules.client"),
     Combat("me.ht9.rose.feature.module.modules.combat"),
+    Dupes("me.ht9.rose.feature.module.modules.dupes"),
     Exploit("me.ht9.rose.feature.module.modules.exploit"),
     Misc("me.ht9.rose.feature.module.modules.misc"),
     Movement("me.ht9.rose.feature.module.modules.movement"),
@@ -44,3 +45,4 @@ public enum Category
         ).findFirst();
     }
 }
+
