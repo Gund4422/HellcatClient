@@ -1,62 +1,58 @@
-package me.ht9.rose.feature.module.modules.dupe;
+package me.ht9.rose.feature.module.modules.dupes;
 
 import me.ht9.rose.event.bus.annotation.SubscribeEvent;
-import me.ht9.rose.event.events.UpdateEvent; // Assuming you have a standard update event
+import me.ht9.rose.event.events.PacketEvent;
+import me.ht9.rose.event.events.TickEvent;
 import me.ht9.rose.feature.module.Module;
 import me.ht9.rose.feature.module.annotation.Description;
 import net.minecraft.src.*;
-import org.lwjgl.input.Keyboard;
 
-@Description("Breaks chests while keeping the GUI open for 0-stack/negative-stack duping.")
+@Description("Breaks chest while GUI is open. Left-click for 0-stack, Right-click for -1.")
 public final class ChestDupe extends Module {
     private static final ChestDupe instance = new ChestDupe();
 
-    public ChestDupe() {
-        // Module constructor
-    }
-
     @Override
     public void onEnable() {
-        if (mc.thePlayer == null || mc.objectMouseOver == null) return;
+        if (mc.thePlayer == null || mc.objectMouseOver == null) {
+            this.toggle();
+            return;
+        }
 
-        // Check if we are looking at a chest
-        if (mc.objectMouseOver.typeOfHit == EnumMovingObjectType.TILE) {
-            int x = mc.objectMouseOver.blockX;
-            int y = mc.objectMouseOver.blockY;
-            int z = mc.objectMouseOver.blockZ;
-            int id = mc.theWorld.getBlockId(x, y, z);
-
-            if (id == Block.chest.blockID) {
-                // 1. Send the break packets immediately (Start and Stop)
-                // This breaks the chest server-side without closing your client GUI
-                mc.getSendQueue().addToSendQueue(new Packet14BlockDig(0, x, y, z, mc.objectMouseOver.sideHit));
-                mc.getSendQueue().addToSendQueue(new Packet14BlockDig(2, x, y, z, mc.objectMouseOver.sideHit));
-                
-                mc.thePlayer.addChatMessage("Chest broken. GUI Locked. Get that -1 stack!");
+        MovingObjectPosition mop = mc.objectMouseOver;
+        
+        // Ensure we are looking at a chest and the UI is actually open
+        if (mop.typeOfHit == EnumMovingObjectType.TILE && mc.currentScreen instanceof GuiChest) {
+            int x = mop.blockX;
+            int y = mop.blockY;
+            int z = mop.blockZ;
+            
+            if (mc.theWorld.getBlockId(x, y, z) == Block.chest.blockID) {
+                // Instantly break the chest
+                mc.getSendQueue().addToSendQueue(new Packet14BlockDig(0, x, y, z, mop.sideHit));
+                mc.getSendQueue().addToSendQueue(new Packet14BlockDig(2, x, y, z, mop.sideHit));
+                mc.thePlayer.addChatMessage("Chest broken. GUI Locked.");
             }
+        } else {
+            mc.thePlayer.addChatMessage("Open the chest first!");
+            this.toggle();
         }
     }
 
-    // This is the "Glue": It prevents the GUI from closing when the server says the block is gone
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent event) { // Replace with your actual Packet Event
-        if (!this.isEnabled()) return;
-
-        // Block the server-side Close Window packet
-        if (event.getPacket() instanceof Packet101CloseWindow) {
+    public void onPacket(PacketEvent event) {
+        // If the server tries to close our window while we are duping, block it
+        if (!event.serverBound() && event.packet() instanceof Packet101CloseWindow) {
             event.setCancelled(true);
         }
-        
-        // Block the Packet53 (Block Change) if it tries to tell the client the chest is now Air
-        if (event.getPacket() instanceof Packet53BlockChange) {
-            Packet53BlockChange p = (Packet53BlockChange) event.getPacket();
-            if (p.type == 0) { // If it's turning into air
-                 event.setCancelled(true);
-            }
+    }
+
+    @SubscribeEvent
+    public void onTick(TickEvent event) {
+        // Auto-disable if we manually leave the GUI
+        if (mc.currentScreen == null && this.isEnabled()) {
+            this.toggle();
         }
     }
 
-    public static ChestDupe instance() { 
-        return instance; 
-    }
+    public static ChestDupe instance() { return instance; }
 }
