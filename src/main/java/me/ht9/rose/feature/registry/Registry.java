@@ -14,7 +14,7 @@ import me.ht9.rose.feature.module.modules.client.irc.IRC;
 import me.ht9.rose.feature.module.modules.client.mainmenu.MainMenu;
 import me.ht9.rose.feature.module.modules.client.togglemsg.ToggleMsg;
 import me.ht9.rose.feature.module.modules.combat.aura.Aura;
-import me.ht9.rose.feature.module.modules.dupes.ChestDupe
+import me.ht9.rose.feature.module.modules.dupes.ChestDupe;
 import me.ht9.rose.feature.module.modules.exploit.boatfly.BoatFly;
 import me.ht9.rose.feature.module.modules.exploit.fastportal.FastPortal;
 import me.ht9.rose.feature.module.modules.exploit.infdurability.InfDurability;
