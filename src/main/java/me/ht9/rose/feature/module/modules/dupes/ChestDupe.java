@@ -20,12 +20,14 @@ public final class ChestDupe extends Module {
 
         MovingObjectPosition mop = mc.objectMouseOver;
         
+        // Ensure we are looking at a chest and the UI is open
         if (mop.typeOfHit == EnumMovingObjectType.TILE && mc.currentScreen instanceof GuiChest) {
             int x = mop.blockX;
             int y = mop.blockY;
             int z = mop.blockZ;
             
             if (mc.theWorld.getBlockId(x, y, z) == Block.chest.blockID) {
+                // Break chest server-side: 0 = Start, 2 = Stop
                 mc.getSendQueue().addToSendQueue(new Packet14BlockDig(0, x, y, z, mop.sideHit));
                 mc.getSendQueue().addToSendQueue(new Packet14BlockDig(2, x, y, z, mop.sideHit));
                 mc.thePlayer.addChatMessage("Chest broken. GUI Locked.");
@@ -38,10 +40,9 @@ public final class ChestDupe extends Module {
 
     @SubscribeEvent
     public void onPacket(PacketEvent event) {
-        // Use your packet() getter from the PacketEvent class
+        // Prevent the server from closing our chest window
         if (!event.serverBound() && event.packet() instanceof Packet101CloseWindow) {
-            // Check if module is enabled using the field 'enabled'
-            if (this.enabled) { 
+            if (this.enabled()) { // Corrected method name
                 event.setCancelled(true);
             }
         }
@@ -49,8 +50,8 @@ public final class ChestDupe extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent event) {
-        // Check if module is enabled using the field 'enabled'
-        if (mc.currentScreen == null && this.enabled) {
+        // Automatically toggle off if the player manually closes the screen
+        if (mc.currentScreen == null && this.enabled()) { // Corrected method name
             this.toggle();
         }
     }
