@@ -20,14 +20,12 @@ public final class ChestDupe extends Module {
 
         MovingObjectPosition mop = mc.objectMouseOver;
         
-        // Ensure we are looking at a chest and the UI is actually open
         if (mop.typeOfHit == EnumMovingObjectType.TILE && mc.currentScreen instanceof GuiChest) {
             int x = mop.blockX;
             int y = mop.blockY;
             int z = mop.blockZ;
             
             if (mc.theWorld.getBlockId(x, y, z) == Block.chest.blockID) {
-                // Instantly break the chest
                 mc.getSendQueue().addToSendQueue(new Packet14BlockDig(0, x, y, z, mop.sideHit));
                 mc.getSendQueue().addToSendQueue(new Packet14BlockDig(2, x, y, z, mop.sideHit));
                 mc.thePlayer.addChatMessage("Chest broken. GUI Locked.");
@@ -40,16 +38,19 @@ public final class ChestDupe extends Module {
 
     @SubscribeEvent
     public void onPacket(PacketEvent event) {
-        // If the server tries to close our window while we are duping, block it
+        // Use your packet() getter from the PacketEvent class
         if (!event.serverBound() && event.packet() instanceof Packet101CloseWindow) {
-            event.setCancelled(true);
+            // Check if module is enabled using the field 'enabled'
+            if (this.enabled) { 
+                event.setCancelled(true);
+            }
         }
     }
 
     @SubscribeEvent
     public void onTick(TickEvent event) {
-        // Auto-disable if we manually leave the GUI
-        if (mc.currentScreen == null && this.isEnabled()) {
+        // Check if module is enabled using the field 'enabled'
+        if (mc.currentScreen == null && this.enabled) {
             this.toggle();
         }
     }
