@@ -2,14 +2,13 @@
   "schemaVersion": 1,
   "id": "rose",
   "version": "${version}",
-  "name": "Rose",
-  "description": "The beginning.",
+  "name": "Hose",
+  "description": "an beta 1.7.3 babric hacked client, made with love <3",
   "authors": [
-    "ht9",
-    "8aeszmrteutjqe"
+    "Gund4422"
   ],
   "contact": {
-    "homepage": "https://github.com/skibidiware/rose-babric",
+    "homepage": "https://github.com/Gund4422/Hose",
     "sources": "stack overflow <3"
   },
   "license": "MPL-2.0",
