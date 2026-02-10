@@ -39,9 +39,8 @@ public final class Rose implements ClientModInitializer, Globals
 		bus.register(Factory.instance());
 		bus.register(Prediction.instance());
 
-		Registry.loadModules();
-		Registry.loadCommands();
-		Registry.finishLoad();
+		// Replaced loadModules, loadCommands, and finishLoad with the unified call
+		Registry.load();
 
 		FileUtils.loadModules();
 		FileUtils.loadClickGUI();
