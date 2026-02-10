@@ -20,67 +20,68 @@ public final class Registry {
     private static final String prefix = ".";
 
     /**
-     * The only method you need to call. 
-     * Scans everything, instantiates, and wires up settings.
+     * Unified entry point. Call this in Rose.java
      */
     public static void load() {
         modules.clear();
         commands.clear();
 
-        // Auto-scan Modules and Commands
+        // Recursively scan for everything
         scan("me.ht9.rose.feature.module.modules", Module.class, modules);
         scan("me.ht9.rose.feature.command.commands", Command.class, commands);
 
-        // Run the internal setup
+        // Process settings and sort
         finishLoad();
     }
 
     private static <T> void scan(String packageName, Class<T> type, List<T> list) {
+        String path = packageName.replace('.', '/');
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+
         try {
-            String path = packageName.replace('.', '/');
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
             Enumeration<URL> resources = loader.getResources(path);
-            
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
-                File dir = new File(resource.getFile().replaceAll("%20", " ")); // Fix spaces in paths
-                
-                if (!dir.exists()) continue;
-                
-                for (File file : Objects.requireNonNull(dir.listFiles())) {
+                File dir = new File(resource.getFile().replaceAll("%20", " "));
+
+                if (!dir.exists() || dir.listFiles() == null) continue;
+
+                for (File file : dir.listFiles()) {
                     if (file.isDirectory()) {
                         scan(packageName + "." + file.getName(), type, list);
                     } else if (file.getName().endsWith(".class") && !file.getName().contains("$")) {
                         String className = packageName + "." + file.getName().replace(".class", "");
+                        
+                        // Skip Category file
                         if (className.endsWith("Category")) continue;
 
-                        Class<?> clazz = Class.forName(className);
-                        if (type.isAssignableFrom(clazz) && !clazz.isInterface()) {
-                            T instance = null;
-                            try {
-                                // Priority 1: .instance()
-                                Method m = clazz.getDeclaredMethod("instance");
-                                m.setAccessible(true);
-                                instance = (T) m.invoke(null);
-                            } catch (Exception e) {
-                                // Priority 2: Constructor
+                        try {
+                            Class<?> clazz = Class.forName(className);
+                            if (type.isAssignableFrom(clazz) && !clazz.isInterface()) {
+                                T instance = null;
                                 try {
+                                    // Try singleton instance() method first
+                                    Method m = clazz.getDeclaredMethod("instance");
+                                    m.setAccessible(true);
+                                    instance = (T) m.invoke(null);
+                                } catch (Exception e) {
+                                    // Fallback to constructor
                                     instance = (T) clazz.getDeclaredConstructor().newInstance();
-                                } catch (Exception ignored) {}
+                                }
+                                if (instance != null) list.add(instance);
                             }
-                            if (instance != null) list.add(instance);
-                        }
+                        } catch (Exception ignored) {}
                     }
                 }
             }
         } catch (Exception e) {
-            Rose.logger().error("Registry failed to scan " + packageName);
+            Rose.logger().error("Registry scan failed for: " + packageName);
         }
     }
 
     private static void finishLoad() {
         modules.forEach(module -> {
-            // Use reflection to find all Setting fields in the module class
+            // Automatically find Setting fields in the module class via reflection
             for (Field field : module.getClass().getDeclaredFields()) {
                 if (Setting.class.isAssignableFrom(field.getType())) {
                     try {
@@ -89,17 +90,17 @@ public final class Registry {
                     } catch (Throwable ignored) {}
                 }
             }
-            // Add the hardcoded/base settings
+            // Add global/base settings
             module.settings().add(module.drawn());
             module.settings().add(module.bindMode());
             module.settings().add(module.toggleBind());
         });
 
-        // Alphabetize for the GUI
+        // Alphabetize for the GUI list
         modules.sort(Comparator.comparing(Feature::name));
         commands.sort(Comparator.comparing(Command::name));
         
-        Rose.logger().info("Hose Registry: Initialized " + modules.size() + " modules and " + commands.size() + " commands.");
+        Rose.logger().info("Hose/Rose Registry: " + modules.size() + " Modules, " + commands.size() + " Commands.");
     }
 
     public static List<Module> modules() { return modules; }
