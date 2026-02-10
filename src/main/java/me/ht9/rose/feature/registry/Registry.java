@@ -19,17 +19,19 @@ public final class Registry {
     private static final List<String> friends = new CopyOnWriteArrayList<>();
     private static final String prefix = ".";
 
+    /**
+     * The only method you need to call. 
+     * Scans everything, instantiates, and wires up settings.
+     */
     public static void load() {
         modules.clear();
         commands.clear();
 
-        // 1. Auto-load Modules
+        // Auto-scan Modules and Commands
         scan("me.ht9.rose.feature.module.modules", Module.class, modules);
-        
-        // 2. Auto-load Commands
         scan("me.ht9.rose.feature.command.commands", Command.class, commands);
 
-        // 3. Setup Settings and Sorting
+        // Run the internal setup
         finishLoad();
     }
 
@@ -40,7 +42,9 @@ public final class Registry {
             Enumeration<URL> resources = loader.getResources(path);
             
             while (resources.hasMoreElements()) {
-                File dir = new File(resources.nextElement().getFile());
+                URL resource = resources.nextElement();
+                File dir = new File(resource.getFile().replaceAll("%20", " ")); // Fix spaces in paths
+                
                 if (!dir.exists()) continue;
                 
                 for (File file : Objects.requireNonNull(dir.listFiles())) {
@@ -54,13 +58,15 @@ public final class Registry {
                         if (type.isAssignableFrom(clazz) && !clazz.isInterface()) {
                             T instance = null;
                             try {
-                                // Try Rose singleton pattern
+                                // Priority 1: .instance()
                                 Method m = clazz.getDeclaredMethod("instance");
                                 m.setAccessible(true);
                                 instance = (T) m.invoke(null);
                             } catch (Exception e) {
-                                // Fallback to no-args constructor
-                                instance = (T) clazz.getDeclaredConstructor().newInstance();
+                                // Priority 2: Constructor
+                                try {
+                                    instance = (T) clazz.getDeclaredConstructor().newInstance();
+                                } catch (Exception ignored) {}
                             }
                             if (instance != null) list.add(instance);
                         }
@@ -74,6 +80,7 @@ public final class Registry {
 
     private static void finishLoad() {
         modules.forEach(module -> {
+            // Use reflection to find all Setting fields in the module class
             for (Field field : module.getClass().getDeclaredFields()) {
                 if (Setting.class.isAssignableFrom(field.getType())) {
                     try {
@@ -82,14 +89,17 @@ public final class Registry {
                     } catch (Throwable ignored) {}
                 }
             }
+            // Add the hardcoded/base settings
             module.settings().add(module.drawn());
             module.settings().add(module.bindMode());
             module.settings().add(module.toggleBind());
         });
 
+        // Alphabetize for the GUI
         modules.sort(Comparator.comparing(Feature::name));
         commands.sort(Comparator.comparing(Command::name));
-        Rose.logger().info("Rose Registry: Loaded " + modules.size() + " modules and " + commands.size() + " commands.");
+        
+        Rose.logger().info("Hose Registry: Initialized " + modules.size() + " modules and " + commands.size() + " commands.");
     }
 
     public static List<Module> modules() { return modules; }
