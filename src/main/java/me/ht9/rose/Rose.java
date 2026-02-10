@@ -30,6 +30,12 @@ public final class Rose implements ClientModInitializer, Globals
 
 	private static long startTime;
 	
+	public void load() {
+		Registry.loadModules();
+		Registry.loadCommands();
+		Registry.finishLoad();
+	}
+	
 	@Override
 	public void onInitializeClient()
 	{
@@ -39,8 +45,8 @@ public final class Rose implements ClientModInitializer, Globals
 		bus.register(Factory.instance());
 		bus.register(Prediction.instance());
 
-		// Replaced loadModules, loadCommands, and finishLoad with the unified call
-		Registry.load();
+		// add load but in here
+		load();
 
 		FileUtils.loadModules();
 		FileUtils.loadClickGUI();
