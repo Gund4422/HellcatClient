@@ -41,7 +41,6 @@ import me.ht9.rose.feature.module.modules.misc.spammer.Spammer;
 import me.ht9.rose.feature.module.modules.misc.tcpnodelay.TcpNoDelay;
 import me.ht9.rose.feature.module.modules.misc.timer.Timer;
 import me.ht9.rose.feature.module.modules.misc.visualrange.VisualRange;
-import me.ht9.rose.feature.module.modules.movement.strafe.Strafe;
 import me.ht9.rose.feature.module.modules.movement.glockspeed.GlockSpeed;
 import me.ht9.rose.feature.module.modules.movement.autowalk.AutoWalk;
 import me.ht9.rose.feature.module.modules.movement.faststop.FastStop;
@@ -139,7 +138,6 @@ public final class Registry
         modules.add(Velocity.instance());
         modules.add(Yaw.instance());
         modules.add(GlockSpeed.instance());
-        modules.add(Strafe.instance());
         
         modules.add(CameraTweaks.instance());
         modules.add(ESP.instance());
