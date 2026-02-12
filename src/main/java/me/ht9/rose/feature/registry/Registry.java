@@ -16,6 +16,7 @@ import me.ht9.rose.feature.module.modules.client.togglemsg.ToggleMsg;
 import me.ht9.rose.feature.module.modules.combat.aura.Aura;
 import me.ht9.rose.feature.module.modules.dupes.ChestDupe;
 import me.ht9.rose.feature.module.modules.exploit.boatfly.BoatFly;
+import me.ht9.rose.feature.module.modules.exploit.hose.ProjectHose;
 import me.ht9.rose.feature.module.modules.exploit.fastportal.FastPortal;
 import me.ht9.rose.feature.module.modules.exploit.infdurability.InfDurability;
 import me.ht9.rose.feature.module.modules.exploit.instamine.Instamine;
@@ -106,6 +107,7 @@ public final class Registry
         modules.add(PacketMine.instance());
         modules.add(Sneak.instance());
         modules.add(InfiniteSign.instance());
+        modules.add(ProjectHose.instance());
 
         modules.add(AutoCaptcha.instance());
         modules.add(AutoEat.instance());
