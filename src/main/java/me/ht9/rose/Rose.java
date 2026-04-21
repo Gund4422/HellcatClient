@@ -1,3 +1,4 @@
+// cool
 package me.ht9.rose;
 
 import me.ht9.rose.event.bus.EventBus;
